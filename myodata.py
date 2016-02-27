@@ -19,9 +19,9 @@ class Listener(libmyo.DeviceListener):
         roll = quat.roll
         pitch = quat.pitch
         yaw = quat.yaw
-        test = round(127 * ((roll + 3.14) / 6.28))
-        print test
-        self.midi_out.send_message([0xB0, 3, test])
+        value = round(127 * ((roll + 3.14) / 6.28))
+        print value
+        self.midi_out.send_message([0xB0, 3, value])
 
 #Initialize the libmyo controller
 libmyo.init("myo.framework")

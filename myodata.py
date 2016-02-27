@@ -1,11 +1,13 @@
 from time import sleep
 import myo as libmyo
+import rtmidi_python as rtmidi
 
 class Listener(libmyo.DeviceListener):
 
-    roll = 0
-    pitch = 0
-    yaw = 0
+    #Initialize the midi controller
+    #[0xC0, channel (0-127 as DEC), value (0-127 as DEC)]
+    midi_out = rtmidi.MidiOut()
+    midi_out.open_virtual_port("myo")
 
     def on_pair(self, myo, timestamp, firmware_version):
         print("Hello, Myo!")
@@ -17,7 +19,11 @@ class Listener(libmyo.DeviceListener):
         roll = quat.roll
         pitch = quat.pitch
         yaw = quat.yaw
+        value = round(127 * ((roll + 3.14) / 6.28))
+        print value
+        self.midi_out.send_message([0xB0, 3, value])
 
+#Initialize the libmyo controller
 libmyo.init("myo.framework")
 hub = libmyo.Hub()
 myoListener = Listener()

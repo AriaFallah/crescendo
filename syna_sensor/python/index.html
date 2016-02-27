@@ -1,0 +1,130 @@
+<html>
+  <head>
+    <title>Synaptics Sensor Data Demo</title>
+  </head>
+  <body>
+    <script src="jquery-1.11.3.js"></script>
+    <script>
+      baseline = [];
+      rezero = true;
+      go = true;
+      frameCount = -1;
+      lastSequence = -1;
+      lastTs = -1;
+
+      function updateFrameRate(ts, seq) {
+        if (lastSequence < 0) {
+          lastSequence = seq;
+          lastTs = ts;
+          frameCount = 0;
+        }
+        frameCount++;
+        diff = ts - lastTs;
+        if (diff < 0) {
+          diff += Math.pow(2,32);
+        }
+        if (diff > 1e6) {
+          framesPerSec = frameCount / (diff / 1e6);
+          $("#framesPerSec").text(framesPerSec + " frames/sec");
+          lastSequence = seq;
+          lastTs = ts;
+          frameCount = 0;
+        }
+      }
+
+      function updateCanvas(img, rows, cols) {
+        if (rezero) {
+          rezero = false;
+          for (i = 0; i < rows; i++) {
+            baseline[i] = [];
+            for (j = 0; j < cols; j++) {
+              baseline[i][j] = img[i][j];
+            }
+          }
+        } else {
+          for (i = 0; i < rows; i++) {
+            for (j = 0; j < cols; j++) {
+              img[i][j] = baseline[i][j] - img[i][j];
+            }
+          }
+        }
+        max = 0; min = 4095;
+        for (i = 0; i < rows; i++) {
+          for (j = 0; j < cols; j++) {
+            v = img[i][j];
+            if (v > max) {
+              max = v;
+            }
+            if (v < min) {
+              min = v;
+            }
+          }
+        }
+        canvas = document.createElement("canvas");
+        canvas.height = rows;
+        canvas.width = cols;
+        ctx = canvas.getContext('2d');
+        pixels = ctx.createImageData(cols, rows);
+        for (i = 0; i < rows; i++) {
+          for (j = 0; j < cols; j++) {
+            v = img[i][j];
+            color = Math.round((v - min)/(max-min) * 255);
+            pixels.data[(i*cols + j)*4] = color;
+            pixels.data[(i*cols + j)*4+1] = color;
+            pixels.data[(i*cols + j)*4+2] = color;
+            pixels.data[(i*cols + j)*4+3] = 255;
+          }
+        }
+        ctx.putImageData(pixels, 0, 0);
+        dispCanvas = document.getElementById("canvas");
+        dispCanvas.height = 10*rows;
+        dispCanvas.width = 10*cols;
+        dispCtx = dispCanvas.getContext("2d");
+        dispCtx.drawImage(ctx.canvas, 0, 0, cols, rows, 0, 0, dispCanvas.width, dispCanvas.height);
+      }
+
+      function requestUpdate() {
+        $.getJSON("sensorData", function(json) {
+          if (go) {
+            window.setTimeout(requestUpdate, 1);
+          }
+          if (Object.keys(json).length > 0) {
+            //$("#rawData").text(JSON.stringify(json, null, 2));
+            updateFrameRate(json["timeStamp"], json["sequence"]);
+            updateCanvas(json["image"], json["rows"], json["cols"]);
+          }
+        });
+      }
+
+      function stopImages() {
+        $("#button1").text("Start");
+        $("#button1").off("click");
+        $("#button1").click(startImages);
+        go = false;
+      }
+
+      function startImages() {
+        $("#button1").text("Stop");
+        $("#button1").off("click");
+        $("#button1").click(stopImages);
+        go = true;
+        requestUpdate();
+      }
+
+      $( document ).ready(function() {
+        $("#button1").click(startImages);
+        $("#rezero").click(function() {
+          rezero = true;
+        });
+      });
+    </script>
+    <h1>Synaptics Sensor Demo</h1>
+    <p id="framesPerSec">&nbsp;</p>
+    <p>
+      <button id="button1">Start</button>
+      <button id="rezero">Rezero</button>
+    </p>
+    <p id="rawData"></p>
+    <canvas id="canvas"></canvas>
+  </body>
+</html>

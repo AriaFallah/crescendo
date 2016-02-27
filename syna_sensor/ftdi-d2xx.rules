@@ -1,0 +1,8 @@
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6010", GOTO="ftdi_d2xx_rules"
+GOTO="ftdi_d2xx_exit"
+
+LABEL="ftdi_d2xx_rules"
+ENV{DEVTYPE}="usb_device", GROUP="users", MODE="0666"
+ENV{DEVTYPE}="usb_interface", RUN+="/bin/sh -c 'echo %k > /sys/bus/usb/drivers/ftdi_sio/unbind'"
+
+LABEL="ftdi_d2xx_exit"

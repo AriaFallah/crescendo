@@ -43,15 +43,10 @@
 # or more if the downstream code is consuming it fast enough.
 
 from __future__ import print_function
-
 import ftd2xx as FT
-
+import numpy as np
+from time import sleep
 import sys
-
-try:
-    import BaseHTTPServer as httpServer
-except:
-    import http.server as httpServer
 
 crcTable = [
     0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50A5, 0x60C6, 0x70E7,
@@ -166,7 +161,6 @@ class SensorInterface(object):
 
             # Read length word
             if len(self.buffer) < 2:
-                print("Discarded packet because buffer is empty")
                 continue
 
             length = self.buffer[1] + (self.buffer[0] << 8)
@@ -197,7 +191,6 @@ class SensorInterface(object):
 
             # accept the packet, remove it from buffer
             self.buffer[0:length] = []
-            print("Accepting packet, %d bytes long" % length)
             return packet
 
     def removeEscapedFFs(self, packet):
@@ -223,73 +216,30 @@ class SensorInterface(object):
         while rx == 65536:
             (rx, tx, stat) = self.sensor.getStatus()
             buf = self.sensor.read(rx)
-            print("Read %d bytes" % len(buf))
-            if rx == 65536:
-                print("Discarding buffer...")
 
         if sys.version_info[0] < 3:
             buf = [ord(x) for x in buf]
         self.buffer.extend(buf)
 
 
-class MyHttpHandler(httpServer.BaseHTTPRequestHandler):
-
-    def imageToJSON(self, image):
-        # JSON requires double-quotes around dict keys, Python's standard
-        # __str__ gives single-quotes. Also it annotates long integers. So
-        # here's a method to create actual JSON.
-        self.writeStr("{")
-        keys = list(image.keys())
-        for j in range(len(keys)):
-            k = keys[j]
-            self.writeStr('"%s":%s' % (k, image[k]))
-            if j != len(keys) - 1:
-                self.writeStr(",")
-        self.writeStr("}")
-
-    def writeStr(self, s):
-        self.wfile.write(s.encode("utf-8"))
-
-    def send_sensorData(self):
-        global sensor
-        self.send_response(200)
-        self.send_header("Content-type", "application/json")
-        self.end_headers()
-        images = sensor.getAllImages()
-        if len(images) > 0:
-            self.imageToJSON(images[-1])
-        else:
-            print("Warning: no image available")
-            self.writeStr("{}")
-
-    def send_file(self, file):
-        f = open(file)
-        self.send_response(200)
-        self.send_header("Content-type", "text/html")
-        self.end_headers()
-        for line in f:
-            self.writeStr(line)
-        f.close()
-
-    def do_GET(self):
-        files = ['index.html', 'jquery-1.11.3.js']
-        if self.path == '/':
-            self.path = '/index.html'
-
-        if self.path == '/sensorData':
-            self.send_sensorData()
-        elif self.path[1:] in files:
-            self.send_file(self.path[1:])
-        else:
-            self.send_response(404)
-            self.send_header("Content-type", "text/html")
-            self.end_headers()
-            self.writeStr("<html><head><title>Not Found</title></head>")
-            self.writeStr("<body><h1>Not Found</h1></body></html>")
+def sensor2midi(sensor):
+    initialState = sensor.getAllImages()
+    while initialState == []:
+        print ("FINDING")
+        initialState = sensor.getAllImages()
+        sleep(0.5)
+    while True:
+        sleep(0.001)
+        print ("")
+        state = sensor.getAllImages()
+        if state:
+            diff = np.subtract(initialState[-1]['image'], state[-1]['image'])
+            for row, col in np.ndindex(diff.shape):
+                if diff[row][col] > 10:
+                    print ("TOUCH")
 
 
-def Main(port):
-    global sensor
+def Main():
     sensor = SensorInterface()
     try:
         sensor.connect()
@@ -298,17 +248,8 @@ def Main(port):
         raise
         return
 
-    server = httpServer.HTTPServer(('', port), MyHttpHandler)
-
-    try:
-        server.serve_forever()
-    except KeyboardInterrupt:
-        pass
-
+    sensor2midi(sensor)
     sensor.close()
 
 if __name__ == '__main__':
-    port = 8080
-    if len(sys.argv) > 1:
-        port = int(sys.argv[1])
-    Main(port)
+    Main()

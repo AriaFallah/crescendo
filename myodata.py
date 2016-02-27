@@ -2,6 +2,7 @@ from time import sleep
 import myo as libmyo
 import rtmidi_python as rtmidi
 
+#Midi channels for the three different types of motion
 roll_channel = 3
 pitch_channel = 9
 yaw_channel = 14

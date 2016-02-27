@@ -1,5 +1,6 @@
 from time import sleep
 import myo as libmyo
+import rtmidi_python as rtmidi
 
 class Listener(libmyo.DeviceListener):
 
@@ -18,6 +19,12 @@ class Listener(libmyo.DeviceListener):
         pitch = quat.pitch
         yaw = quat.yaw
 
+#Initialize the midi controller
+#[0xC0, channel (0-127 as DEC), value (0-127 as DEC)]
+midi_out = rtmidi.MidiOut()
+midi_out.open_virtual_port("myo")
+
+#Initialize the libmyo controller
 libmyo.init("myo.framework")
 hub = libmyo.Hub()
 myoListener = Listener()

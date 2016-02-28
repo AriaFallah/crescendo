@@ -1,9 +1,12 @@
 import Leap, sys, thread, time
+import rtmidi_python as rtmidi
 from Leap import CircleGesture, KeyTapGesture, ScreenTapGesture, SwipeGesture
 
+
+
 class SampleListener(Leap.Listener):
-     
-        
+
+
 
     def on_connect(self, controller):
         print "Connected"

@@ -2,8 +2,8 @@
 
 import numpy as np
 import rtmidi_python as rtmidi
-from time import sleep
 import threading
+from time import sleep
 from sensor import SensorInterface
 
 # The dimensions of the board
@@ -46,12 +46,15 @@ class Board:
             raise Exception("Valid number of regions is one of the following [1, 2, 3, 4, 6, 8, 9, 12, 18, 24, 36, 72]")
 
         # Fill the matrix with proper pitches
-        x = 50
+        x = 30
         self.modulo = BOARD_COLS / numRegions
         for col in xrange(BOARD_COLS):
             self.pitches.append(x)
             if col % self.modulo == 0:
                 x = x + self.modulo
+
+        for i in self.pitches:
+            print i
 
     def sensor2midi(self):
         # Read initial state until it's not empty
@@ -68,13 +71,14 @@ class Board:
             if state:
                 # Diff the initial state with the new state
                 diff = np.subtract(initialState[-1]['image'], state[-1]['image'])
-                self.activeRegions = np.unique(np.where(diff > 180)[1] // self.modulo)
+                self.activeRegions = np.unique(np.where(diff > 100)[1] // self.modulo)
 
     def handleTouch(self, region):
         active = False
         while True:
             sleep(0.01)
             if region in self.activeRegions and not active:
+                print "HELLO"
                 active = True
                 pitch = self.pitches[region * self.modulo]
                 self.midi_out.send_message([0x90, pitch, 100])
@@ -84,7 +88,7 @@ class Board:
 
 
 def main():
-    board = Board(18)
+    board = Board(72)
     board.sensor2midi()
 
 

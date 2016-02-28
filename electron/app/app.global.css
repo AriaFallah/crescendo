@@ -35,6 +35,13 @@ a {
   animation-fill-mode: forwards;
 }
 
+.button.animate {
+  opacity: 0;
+  animation: fadein .4s ease-out;
+  animation-delay: 1s;
+  animation-fill-mode: forwards;
+}
+
 .container {
   text-align: center;
 }
@@ -44,6 +51,11 @@ a {
 }
 
 @keyframes fadeup {
-  from { opacity: 0; transform: translateY(25px) }
-  to   { opacity: 1; transform: translateY(0) }
+  from { opacity: 0; transform: translateY(25px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadein {
+  from { opacity: 0; }
+  to   { opacity : 1; }
 }

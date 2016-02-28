@@ -12,15 +12,15 @@ output.openVirtualPort('Leap')
 const questions = [{
   type: "input",
   name: "x",
-  message: "Assigning x-axis (up-down): Set the application to listen to controller input. Press Enter to continue (or s to skip)."
+  message: "Assigning x-axis (left-right): Press enter after you have setup the connection (or s to skip)."
 }, {
   type: "input",
   name: "y",
-  message: "Assigning y-axis (left-right): Set the application to listen to controller input. Press Enter to continue (or s to skip).",
+  message: "Assigning y-axis (up-down): Press enter after you have setup the connection (or s to skip).",
 }, {
   type: "input",
   name: "z",
-  message: "Assigning z-axis (forward-backward): Set the application to listen to controller input. Press Enter to continue (or s to skip).",
+  message: "Assigning z-axis (forward-backward): Press enter after you have setup the connection (or s to skip).",
 }];
 
 // Use co to synchronously prompt for questions

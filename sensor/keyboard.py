@@ -3,6 +3,7 @@
 import numpy as np
 import rtmidi_python as rtmidi
 import threading
+import sys
 from time import sleep
 from sensor import SensorInterface
 
@@ -13,8 +14,6 @@ BOARD_COLS = 72
 
 class Board:
     def __init__(self, numRegions):
-        print 'initializing...'
-
         # Create a virtual MIDI device
         self.midi_out = rtmidi.MidiOut()
         self.midi_out.open_virtual_port("TouchPad")
@@ -60,8 +59,6 @@ class Board:
             initialState = self.sensor.getAllImages()
             sleep(0.2)
 
-        print "ready!"
-
         # Observe touch events
         while True:
             sleep(0.01)
@@ -87,6 +84,8 @@ class Board:
 def main():
     board = Board(72)
     board.sensor2midi()
+    print "ready!"
+    sys.stdout.flush()
 
 
 if __name__ == '__main__':

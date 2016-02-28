@@ -38,8 +38,6 @@ class SampleListener(Leap.Listener):
 
 
 def main():
-    midi_out = rtmidi.MidiOut()
-    midi_out.open_virtual_port("Leap")
     listener = SampleListener()
     controller = Leap.Controller()
     controller.add_listener(listener)

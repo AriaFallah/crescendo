@@ -50,7 +50,7 @@ class Board:
         for col in xrange(BOARD_COLS):
             self.pitches.append(x)
             if col % self.modulo == 0:
-                x = x + self.modulo
+                x = x + 1
 
     def sensor2midi(self):
         # Read initial state until it's not empty
@@ -82,10 +82,10 @@ class Board:
 
 
 def main():
-    board = Board(72)
-    board.sensor2midi()
+    board = Board(12)
     print "ready!"
     sys.stdout.flush()
+    board.sensor2midi()
 
 
 if __name__ == '__main__':

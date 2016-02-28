@@ -29,7 +29,7 @@ export default class Main extends Component {
 
     this.keyboard.stdout.on('data', (data) => {
       const message = data.toString()
-      if (message !== 'ready!') this.setState({ keyboardReady: false })
+      if (message === 'ready!') this.setState({ keyboardReady: false })
       this.forceUpdate()
     })
     this.keyboard.stderr.on('data', (data) => {

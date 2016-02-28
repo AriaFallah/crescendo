@@ -1,6 +1,6 @@
-import os, sys, inspect, thread, time
-import rtmidi_python as rtmidi
 import libleap as Leap
+import sys
+import rtmidi_python as rtmidi
 
 class SampleListener(Leap.Listener):
 
@@ -62,5 +62,6 @@ def main():
         pass
     finally:
         controller.remove_listener(listener)
+
 if __name__ == "__main__":
     main()

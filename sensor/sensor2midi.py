@@ -13,6 +13,8 @@ BOARD_COLS = 72
 
 class Board:
     def __init__(self, numRegions):
+        print 'initializing...'
+
         # Create a virtual MIDI device
         self.midi_out = rtmidi.MidiOut()
         self.midi_out.open_virtual_port("TouchPad")
@@ -58,6 +60,7 @@ class Board:
             initialState = self.sensor.getAllImages()
             sleep(0.2)
 
+        print "ready!"
         # Observe touch events
         while True:
             sleep(0.01)
@@ -71,12 +74,13 @@ class Board:
         active = False
         while True:
             sleep(0.01)
-            if region in self.activeRegions:
+            if region in self.activeRegions and not active:
                 active = True
                 pitch = self.pitches[region * self.modulo]
                 self.midi_out.send_message([0x90, pitch, 100])
             elif region not in self.activeRegions and active:
                 self.midi_out.send_message([0x80, pitch, 100])
+                active = False
 
 
 def main():

@@ -1,13 +1,11 @@
-const spawn = require('child_process').spawn
+const { spawn } = require('child_process')
 import React, { Component } from 'react'
 import { Link } from 'react-router'
 
 export default class Main extends Component {
   constructor(props) {
     super(props)
-    this.state = {
-      keyboardReady: true
-    }
+    this.state = {}
   }
 
   componentWillMount() {
@@ -29,8 +27,9 @@ export default class Main extends Component {
 
     this.keyboard.stdout.on('data', (data) => {
       const message = data.toString()
-      if (message === 'ready!') this.setState({ keyboardReady: false })
-      this.forceUpdate()
+      if (message === 'ready!\n') {
+        this.setState({ keyboardReady: true })
+      }
     })
     this.keyboard.stderr.on('data', (data) => {
       console.log(`error: ${data}`)
@@ -98,7 +97,7 @@ export default class Main extends Component {
         {this.state.leapMessage
           ? <form>
               <input
-                onChange={function(e) { this.setState({ responseValue: e.target.value }) }}
+                onKeyUp={function(e) { console.log(e) }}
                 className="centered fadein" type="text"
               />
             </form>

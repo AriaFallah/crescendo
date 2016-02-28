@@ -45,12 +45,15 @@ class Board:
             raise Exception("Valid number of regions is one of the following [1, 2, 3, 4, 6, 8, 9, 12, 18, 24, 36, 72]")
 
         # Fill the matrix with proper pitches
-        x = 30
+        x = 48
+        index = 0
+        scale = [2, 1, 2, 2, 1, 2, 2]
         self.modulo = BOARD_COLS / numRegions
         for col in xrange(BOARD_COLS):
             self.pitches.append(x)
             if col % self.modulo == 0:
-                x = x + 1
+                x = x + scale[index]
+                index = (index + 1) % len(scale)
 
     def sensor2midi(self):
         # Read initial state until it's not empty
@@ -71,7 +74,7 @@ class Board:
     def handleTouch(self, region):
         active = False
         while True:
-            sleep(0.01)
+            sleep(0.05)
             if region in self.activeRegions and not active:
                 active = True
                 pitch = self.pitches[region * self.modulo]

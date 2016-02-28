@@ -3,46 +3,86 @@
 import numpy as np
 import rtmidi_python as rtmidi
 from time import sleep
+import threading
 from sensor import SensorInterface
 
-
-def sensor2midi(sensor):
-    midi_out = rtmidi.MidiOut()
-    midi_out.open_virtual_port("test")
-
-    pitchMatrix = np.zeros(shape=(46, 72))
-    for row in xrange(46):
-        for col in xrange(72):
-            pitchMatrix[row][col] = row * 3
-
-    initialState = sensor.getAllImages()
-    while initialState == []:
-        initialState = sensor.getAllImages()
-        sleep(0.2)
-    while True:
-        sleep(0.001)
-        state = sensor.getAllImages()
-        if state:
-            diff = np.subtract(initialState[-1]['image'], state[-1]['image'])
-            for row, col in np.ndindex(diff.shape):
-                if diff[row][col] > 150:
-                    pitch = pitchMatrix[row][col]
-                    midi_out.send_message([0x90, pitch, 100])
-                    sleep(0.01)
-                    midi_out.send_message([0x80, pitch, 100])
+# The dimensions of the board
+BOARD_ROWS = 46
+BOARD_COLS = 72
 
 
-def Main():
-    sensor = SensorInterface()
-    try:
-        sensor.connect()
-    except:
-        print("Error connecting to sensor")
-        raise
-        return
+class Board:
+    def __init__(self, numRegions):
+        # Create a virtual MIDI device
+        self.midi_out = rtmidi.MidiOut()
+        self.midi_out.open_virtual_port("TouchPad")
 
-    sensor2midi(sensor)
-    sensor.close()
+        self.activeRegions = []
+        self.numRegions = numRegions
+        self.sensor = SensorInterface()
+        self.pitches = []
+        self.modulo = BOARD_COLS / numRegions
+
+        for x in xrange(numRegions + 1):
+            thread = threading.Thread(target=self.handleTouch, args=(x,))
+            thread.daemon = True
+            thread.start()
+
+        try:
+            self.create_regions(numRegions)
+        except:
+            raise
+
+        try:
+            self.sensor.connect()
+        except:
+            raise
+
+    def create_regions(self, numRegions):
+        # Make sure the number divides the board evenly
+        if numRegions not in [1, 2, 3, 4, 6, 8, 9, 12, 18, 24, 36, 72]:
+            raise Exception("Valid number of regions is one of the following [1, 2, 3, 4, 6, 8, 9, 12, 18, 24, 36, 72]")
+
+        # Fill the matrix with proper pitches
+        x = 50
+        self.modulo = BOARD_COLS / numRegions
+        for col in xrange(BOARD_COLS):
+            self.pitches.append(x)
+            if col % self.modulo == 0:
+                x = x + self.modulo
+
+    def sensor2midi(self):
+        # Read initial state until it's not empty
+        initialState = []
+        while initialState == []:
+            initialState = self.sensor.getAllImages()
+            sleep(0.2)
+
+        # Observe touch events
+        while True:
+            sleep(0.01)
+            state = self.sensor.getAllImages()
+            if state:
+                # Diff the initial state with the new state
+                diff = np.subtract(initialState[-1]['image'], state[-1]['image'])
+                self.activeRegions = np.unique(np.where(diff > 180)[1] // self.modulo)
+
+    def handleTouch(self, region):
+        active = False
+        while True:
+            sleep(0.01)
+            if region in self.activeRegions:
+                active = True
+                pitch = self.pitches[region * self.modulo]
+                self.midi_out.send_message([0x90, pitch, 100])
+            elif region not in self.activeRegions and active:
+                self.midi_out.send_message([0x80, pitch, 100])
+
+
+def main():
+    board = Board(18)
+    board.sensor2midi()
+
 
 if __name__ == '__main__':
-    Main()
+    main()

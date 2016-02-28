@@ -106,8 +106,6 @@ class SensorInterface(object):
                 b = self.buffer.pop(0)
                 if b == 0xFF:
                     ffCount += 1
-                    if ffCount == 15:
-                        print("Warning: Sensor buffer overflow")
                 elif ffCount >= 7 and b == 0xA5:
                     break
                 else:
@@ -126,7 +124,6 @@ class SensorInterface(object):
                 return None
 
             if length < 32:
-                print("Discarded packet shorter than minimum (%d bytes vs 32 bytes)" % (length))
                 continue  # packet is shorter than minimum size
 
             packet = self.buffer[0:length]
@@ -134,7 +131,6 @@ class SensorInterface(object):
             calcCrc = crc16(packet[4:])
             txCrc = packet[3] + (packet[2] << 8)
             if calcCrc != txCrc:
-                print("Warning: Transmitted CRC %04X != %04X Calculated" % (txCrc, calcCrc))
                 continue
             packet = self.removeEscapedFFs(packet)
 
@@ -156,8 +152,6 @@ class SensorInterface(object):
                 i += 1
                 continue
             print(packet[i + 4])
-            if packet[i + 4] != 0:
-                print("Warning, saw incorrect escape in FF sequence: %d" % packet[i + 4])
             del packet[i + 4]
             i += 1
         return packet

@@ -27,9 +27,9 @@ const questions = [{
 co(function* () {
   for (const question of questions) {
     const answer = yield new Promise((resolve) => inquirer.prompt(question, resolve))
-    if      (answer.x !== 's') output.sendMessage([0xB0, 9,  0])
-    else if (answer.y !== 's') output.sendMessage([0xB0, 3,  0])
-    else if (answer.z !== 's') output.sendMessage([0xB0, 14, 0])
+    if      (answer.x !== undefined && answer.x !== 's') output.sendMessage([0xB0, 9,  0])
+    else if (answer.y !== undefined && answer.y !== 's') output.sendMessage([0xB0, 3,  0])
+    else if (answer.z !== undefined && answer.z !== 's') output.sendMessage([0xB0, 14, 0])
   }
 }).then(() => {
   const controller = leap.loop(function(frame) {

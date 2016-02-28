@@ -1,0 +1,23 @@
+{
+  "extends": "airbnb",
+  "parser": "babel-eslint",
+  "rules": {
+    "comma-dangle": 0,
+    "no-console": 0,
+    "semi": [2, "never"],
+    "func-names": 0,
+    "space-before-function-paren": 0,
+    "no-multi-spaces": 0,
+    "key-spacing": 0,
+    "no-use-before-define": 0,
+    "react/no-multi-comp": 0,
+    "babel/new-cap": 1,
+    "babel/object-shorthand": 1,
+    "babel/arrow-parens": 1,
+    "babel/no-await-in-loop": 1
+  },
+  "plugins": [
+    "babel",
+    "react"
+  ]
+}

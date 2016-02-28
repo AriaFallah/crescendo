@@ -4,3 +4,4 @@ __pycache__
 Leap.py
 LeapPython.so
 libLeap.dylib
+node_modules

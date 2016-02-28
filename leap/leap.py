@@ -1,7 +1,6 @@
-import Leap, sys, thread, time
+import Leap
+import sys
 import rtmidi_python as rtmidi
-from Leap import CircleGesture, KeyTapGesture, ScreenTapGesture, SwipeGesture
-
 
 
 class SampleListener(Leap.Listener):
@@ -11,7 +10,7 @@ class SampleListener(Leap.Listener):
     def __init__(self):
         self.midi_out = rtmidi.MidiOut()
         self.midi_out.open_virtual_port("Leap")
-        super(SampleListener, self).__init__()   
+        super(SampleListener, self).__init__()
 
     def on_frame(self, controller):
         frame = controller.frame()
@@ -50,5 +49,6 @@ def main():
         pass
     finally:
         controller.remove_listener(listener)
+
 if __name__ == "__main__":
     main()

@@ -53,9 +53,6 @@ class Board:
             if col % self.modulo == 0:
                 x = x + self.modulo
 
-        for i in self.pitches:
-            print i
-
     def sensor2midi(self):
         # Read initial state until it's not empty
         initialState = []
@@ -78,7 +75,6 @@ class Board:
         while True:
             sleep(0.01)
             if region in self.activeRegions and not active:
-                print "HELLO"
                 active = True
                 pitch = self.pitches[region * self.modulo]
                 self.midi_out.send_message([0x90, pitch, 100])

@@ -61,6 +61,7 @@ class Board:
             sleep(0.2)
 
         print "ready!"
+
         # Observe touch events
         while True:
             sleep(0.01)

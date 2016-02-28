@@ -15,16 +15,47 @@ const HomePage = () =>
 
 class ConfigurePage extends Component {
   componentWillMount() {
-    const p = spawn('python', ['/Users/Developer/workspace/hackathons/hacktech/sensor/sensor2midi.py'])
-    p.stdout.on('data', (data) => {
-      console.log(`stdout: ${data}`)
+    console.log('Trying to get LEAP to work')
+    this.p = spawn('python', ['/Users/Developer/workspace/hackathons/hacktech/leap/track.py'])
+    this.p.stdout.on('data', (data) => {
+      console.log(`${data}`)
     })
-    p.stderr.on('data', (data) => {
-      console.log(`stderr: ${data}`)
+    this.p.stderr.on('data', (data) => {
+      console.log(`error: ${data}`)
     })
-    p.on('close', (code) => {
+    this.p.on('close', (code) => {
       console.log(`child process exited with code ${code}`)
     })
+  }
+  componentWillUnmount() {
+    this.p.kill()
+  }
+  render() {
+    return (
+      <div>
+        <Link to="/">HOME</Link>
+        <Link to="/app">APP</Link>
+      </div>
+    )
+  }
+}
+
+class AppPage extends Component {
+  componentWillMount() {
+    console.log('Spawning Keyboard')
+    this.p = spawn('python', ['/Users/Developer/workspace/hackathons/hacktech/sensor/sensor2midi.py'])
+    this.p.stdout.on('data', (data) => {
+      console.log(`${data}`)
+    })
+    this.p.stderr.on('data', (data) => {
+      console.log(`error: ${data}`)
+    })
+    this.p.on('close', (code) => {
+      console.log(`child process exited with code ${code}`)
+    })
+  }
+  componentWillUnmount() {
+    this.p.kill()
   }
   render() {
     return (
@@ -39,7 +70,7 @@ render(
   <Router history={hashHistory}>
     <Route path="/" component={HomePage} />
     <Route path="/configure" component={ConfigurePage}  />
-    <Route path="/app" />
+    <Route path="/app" component={AppPage} />
   </Router>,
   document.getElementById('root')
 )

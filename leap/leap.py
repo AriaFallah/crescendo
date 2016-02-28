@@ -11,15 +11,15 @@ class SampleListener(Leap.Listener):
         self.midi_out.open_virtual_port("Leap")
 
         #Assign the channels
-        result = raw_input("Assigning roll: Set the application to listen to controller input. Press Enter to continue (or s to skip).\n")
+        result = raw_input("Assigning y-axis (up-down): Set the application to listen to controller input. Press Enter to continue (or s to skip).\n")
         if result != "s":
             self.midi_out.send_message([0xB0, 3, 0])
 
-        result = raw_input("Assigning pitch: Set the application to listen to controller input. Press Enter to continue (or s to skip).\n")
+        result = raw_input("Assigning x-axis (left-right): Set the application to listen to controller input. Press Enter to continue (or s to skip).\n")
         if result != "s":
             self.midi_out.send_message([0xB0, 9, 0])
 
-        result = raw_input("Assigning yaw: Set the application to listen to controller input. Press Enter to continue (or s to skip).\n")
+        result = raw_input("Assigning z-axes (forward-backward): Set the application to listen to controller input. Press Enter to continue (or s to skip).\n")
         if result != "s":
             self.midi_out.send_message([0xB0, 14, 0])
 

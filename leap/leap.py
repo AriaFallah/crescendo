@@ -9,6 +9,20 @@ class SampleListener(Leap.Listener):
     def __init__(self):
         self.midi_out = rtmidi.MidiOut()
         self.midi_out.open_virtual_port("Leap")
+
+        #Assign the channels
+        result = raw_input("Assigning roll: Set the application to listen to controller input. Press Enter to continue (or s to skip).\n")
+        if result != "s":
+            self.midi_out.send_message([0xB0, 3, 0])
+
+        result = raw_input("Assigning pitch: Set the application to listen to controller input. Press Enter to continue (or s to skip).\n")
+        if result != "s":
+            self.midi_out.send_message([0xB0, 9, 0])
+
+        result = raw_input("Assigning yaw: Set the application to listen to controller input. Press Enter to continue (or s to skip).\n")
+        if result != "s":
+            self.midi_out.send_message([0xB0, 14, 0])
+
         super(SampleListener, self).__init__()
 
     def on_frame(self, controller):
